@@ -27,7 +27,7 @@
         function searchSheet() {
             const searchQuery = document.getElementById('search-input').value;
             const sheetId = '1UfQ7K08zEB1Hs-cYddYt-BEc_R97rlQlsmG4a1xfQOk';
-            const apiKey = 'YOUR_GOOGLE_API_KEY'; //Replace with your API key
+            const apiKey = 'AIzaSyAoyn0yXsOCFci5gxEe16ynXKWPyKSQHz0'; //Replace with your API key
             const range = 'A:I';
 
             fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
@@ -99,7 +99,7 @@
         });
 
         function sendDataToSheet(accountName, userInput) {
-            const scriptURL = "YOUR_APPS_SCRIPT_WEB_APP_URL"; //Replace with your web app URL.
+            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4XmG3Ha8iC4GwFuOZoue65ColPVLvKWkb5llcHCQ/exec"; //Replace with your web app URL.
 
             fetch(scriptURL, {
                 method: 'POST',
