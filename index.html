@@ -3,79 +3,7 @@
 <head>
     <title>Google Sheet Search</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        #title {
-            font-size: 32px;
-            font-weight: 600;
-            margin-top: 50px;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            text-align: center;
-        }
-        #search-container {
-            margin-bottom: 30px;
-            width: 80%;
-            max-width: 600px;
-            text-align: center;
-        }
-        #search-input {
-            font-size: 18px;
-            padding: 12px 16px;
-            width: 70%;
-            margin-right: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        #search-button {
-            font-size: 18px;
-            padding: 12px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #results {
-            width: 90%;
-            max-width: 1200px;
-            border-collapse: collapse;
-            margin-bottom: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        #results th, #results td {
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            text-align: left;
-        }
-        #results th {
-            background-color: #3498db;
-            color: white;
-            font-weight: 600;
-        }
-        #results tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        #results tbody tr:hover {
-            background-color: #ecf0f1;
-        }
-        .user-input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+        /* ... (Your existing styles) ... */
     </style>
 </head>
 <body>
@@ -99,7 +27,7 @@
         function searchSheet() {
             const searchQuery = document.getElementById('search-input').value;
             const sheetId = '1UfQ7K08zEB1Hs-cYddYt-BEc_R97rlQlsmG4a1xfQOk';
-            const apiKey = 'AIzaSyAoyn0yXsOCFci5gxEe16ynXKWPyKSQHz0';
+            const apiKey = 'YOUR_GOOGLE_API_KEY'; //Replace with your API key
             const range = 'A:I';
 
             fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
@@ -107,14 +35,14 @@
                 .then(data => {
                     if (data.values) {
                         const originalHeaders = data.values[0];
-                        const headers = [...originalHeaders.slice(1, 5), originalHeaders[6], originalHeaders[7], originalHeaders[8], "Notes"];
+                        const headers = ["CPM", "Partner Name", "Account Name", "KYC Status", "Created Date", "Age", "Notes"];
                         const dataRows = data.values.slice(1);
 
                         const results = dataRows.filter(row => {
                             if (row[3]) {
                                 return row[3].toLowerCase().includes(searchQuery.toLowerCase());
                             }
-                        }).map(row => [...row.slice(1, 5), row[6], row[7], row[8], ""]);
+                        }).map(row => [row[1], row[4], row[6], row[7], row[8], row[5], ""]); //Correctly mapping the data to the correct headers.
 
                         displayResults(results, headers);
                     } else {
@@ -152,7 +80,7 @@
                         const input = document.createElement("input");
                         input.type = "text";
                         input.className = "user-input";
-                        input.dataset.partnerKey = row[3];
+                        input.dataset.accountName = row[2]; // Using Account Name (Column B, index 2 in HTML table)
                         newCell.appendChild(input);
                     } else {
                         newCell.textContent = cell;
@@ -164,14 +92,14 @@
         document.getElementById('results').addEventListener('change', function (event) {
             if (event.target.classList.contains('user-input')) {
                 const inputElement = event.target;
-                const partnerKey = inputElement.dataset.partnerKey;
+                const accountName = inputElement.dataset.accountName;
                 const userInput = inputElement.value;
-                sendDataToSheet(partnerKey, userInput);
+                sendDataToSheet(accountName, userInput);
             }
         });
 
-        function sendDataToSheet(partnerKey, userInput) {
-            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4XmG3Ha8iC4GwFuOZoue65ColPVLvKWkb5llcHCQ/exec";
+        function sendDataToSheet(accountName, userInput) {
+            const scriptURL = "YOUR_APPS_SCRIPT_WEB_APP_URL"; //Replace with your web app URL.
 
             fetch(scriptURL, {
                 method: 'POST',
@@ -179,7 +107,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    "partnerKey": partnerKey,
+                    "accountName": accountName,
                     "userInput": userInput
                 })
             })
