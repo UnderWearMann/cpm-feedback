@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheet Search</title>
+    <title>Partner Referral Follow-up</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -78,9 +78,6 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        .hidden-column {
-            display: none;
-        }
         .submit-button {
             padding: 5px 10px;
             margin-left: 5px;
@@ -114,19 +111,19 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.values) {
-                        const headers = ["CPM", "Partner Key", "Client Name", "KYC Status", "Created Date", "Age", "Notes", "Action"];
+                        const headers = ["Opp ID", "CPM", "Partner Name", "Partner Key", "Account Name", "Opportunity Name", "KYC Status", "Created Date", "Age", "Notes", "Action"];
                         const dataRows = data.values.slice(1); // Skip headers
                         const results = dataRows.filter(row => row[3] && row[3].toLowerCase().includes(searchQuery.toLowerCase()))
-                                                 .map(row => [row[1], row[2], row[4], row[6], row[7], row[8], ""]);
+                                                 .map(row => [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], ""]);
 
                         displayResults(results, headers);
                     } else {
-                        document.getElementById('results').querySelector('tbody').innerHTML = `<tr><td colspan="8">No data found.</td></tr>`;
+                        document.getElementById('results').querySelector('tbody').innerHTML = `<tr><td colspan="10">No data found.</td></tr>`;
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    document.getElementById('results').querySelector('tbody').innerHTML = '<tr><td colspan="8">Error fetching data.</td></tr>';
+                    document.getElementById('results').querySelector('tbody').innerHTML = '<tr><td colspan="10">Error fetching data.</td></tr>';
                 });
         }
 
@@ -136,18 +133,18 @@
             resultsTableHead.innerHTML = '';
             resultsTableBody.innerHTML = '';
 
-            headers.forEach((header, index) => {
+            headers.forEach(header => {
                 const newHeader = document.createElement('th');
                 newHeader.textContent = header;
                 resultsTableHead.appendChild(newHeader);
             });
 
             if (results.length === 0) {
-                resultsTableBody.innerHTML = `<tr><td colspan="8">No matching results found.</td></tr>`;
+                resultsTableBody.innerHTML = `<tr><td colspan="10">No matching results found.</td></tr>`;
                 return;
             }
 
-            results.forEach((row, i) => {
+            results.forEach((row) => {
                 const newRow = resultsTableBody.insertRow();
                 row.forEach((cell, index) => {
                     const newCell = newRow.insertCell();
@@ -156,7 +153,6 @@
                         const input = document.createElement("input");
                         input.type = "text";
                         input.className = "user-input";
-                        input.dataset.rowIndex = i; // Store row index for reference
                         newCell.appendChild(input);
 
                         const submitButton = document.createElement("button");
@@ -170,7 +166,7 @@
         }
 
         function sendDataToSheet(oppId, userInput) {
-            const scriptURL = "https://script.google.com/macros/s/AKfycbzbZYwg2N2Kn2zhXjv41JShbOlz1KoLqcMuIbfGGB_U60TkeBIunRJ0DX_-7XUiAoBYKQ/exec"; // Updated Google Apps Script URL
+            const scriptURL = "https://script.google.com/macros/s/AKfycbzbZYwg2N2Kn2zhXjv41JShbOlz1KoLqcMuIbfGGB_U60TkeBIunRJ0DX_-7XUiAoBYKQ/exec"; // Google Apps Script URL
             const data = { oppId, userInput };
 
             fetch(scriptURL, {
