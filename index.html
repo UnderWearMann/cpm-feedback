@@ -22,17 +22,18 @@
     </table>
 
     <script>
-        document.getElementById('search-button').addEventListener('click', searchSheet);
+        document.getElementById('search-button').addEventListener('click', function() {
+            console.log("Search button clicked!");
+            searchSheet();
+        });
 
         function searchSheet() {
             console.log("searchSheet function called");
-            const searchQuery = document.getElementById('search-input').value;
-            console.log("Search Query:", searchQuery);
+            console.log("Search Query:", document.getElementById('search-input').value);
+            console.log("This is a test");
             const sheetId = '1UfQ7K08zEB1Hs-cYddYt-BEc_R97rlQlsmG4a1xfQOk';
             const apiKey = 'AIzaSyAoyn0yXsOCFci5gxEe16ynXKWPyKSQHz0';
             const range = 'A:I';
-
-            console.log("Fetching data from Google Sheets API...");
 
             fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
                 .then(response => {
