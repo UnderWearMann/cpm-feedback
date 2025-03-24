@@ -105,14 +105,21 @@
         document.getElementById('search-button').addEventListener('click', searchSheet);
 
         function searchSheet() {
+            console.log("searchSheet function called");
             const searchQuery = document.getElementById('search-input').value;
             const sheetId = '1UfQ7K08zEB1Hs-cYddYt-BEc_R97rlQlsmG4a1xfQOk';
             const apiKey = 'AIzaSyAoyn0yXsOCFci5gxEe16ynXKWPyKSQHz0';
             const range = 'A:I';
 
+            console.log("Fetching data from Google Sheets API...");
+
             fetch(`https://sheets.googleapis.com/v4/spreadsheets/<span class="math-inline">\{sheetId\}/values/</span>{range}?key=${apiKey}`)
-                .then(response => response.json())
+                .then(response => {
+                    console.log("Google Sheets API response:", response);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log("Google Sheets API data:", data);
                     if (data.values) {
                         const headers = ["Opp ID", "CPM", "Partner Key", "Client Name", "KYC Status", "Created Date", "Age", "Notes"];
                         const dataRows = data.values.slice(1);
@@ -135,6 +142,7 @@
         }
 
         function displayResults(results, headers) {
+            console.log("displayResults function called");
             const resultsTableHead = document.getElementById('results').querySelector('thead tr');
             const resultsTableBody = document.getElementById('results').querySelector('tbody');
             resultsTableHead.innerHTML = '';
@@ -181,7 +189,7 @@
 
         document.getElementById('results').addEventListener('click', function (event) {
             if (event.target.classList.contains('submit-button')) {
-                alert("Submit button clicked"); // Add this alert for debugging
+                alert("Submit button clicked");
                 const submitButton = event.target;
                 const oppId = submitButton.dataset.oppId;
                 const inputElement = submitButton.previousElementSibling;
@@ -192,15 +200,4 @@
 
         function sendDataToSheet(oppId, userInput) {
             console.log("Sending Opp ID:", oppId, "and User Input:", userInput);
-            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4XmG3Ha8iC4GwFuOZoue65ColPVLvKWkb5llcHCQ/exec";
-
-            fetch(scriptURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "oppId": oppId,
-                    "userInput": userInput
-                })
-            })
+            const scriptURL = "https://script.google.com/macros/s/AK
