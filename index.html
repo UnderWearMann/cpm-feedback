@@ -143,7 +143,7 @@
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    document.getElementById('results').querySelector('tbody').innerHTML = `<tr><td colspan="4">Error fetching data.</td></tr>`;
+                    document.getElementById('results').querySelector('tbody').innerHTML = '<tr><td colspan="4">Error fetching data.</td></tr>';
                 });
         }
 
@@ -207,4 +207,4 @@
 
         function sendDataToSheet(oppId, userInput) {
             console.log("Sending Opp ID:", oppId, "and User Input:", userInput);
-            const script
+            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4"
