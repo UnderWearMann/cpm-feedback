@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Sheet Search</title>
     <style>
         body {
@@ -94,62 +96,41 @@
     </div>
     <table id="results">
         <thead>
-            <tr>
-            </tr>
+            <tr></tr>
         </thead>
-        <tbody>
-        </tbody>
+        <tbody></tbody>
     </table>
 
     <script>
         document.getElementById('search-button').addEventListener('click', searchSheet);
 
         function searchSheet() {
-            console.log("searchSheet function called");
             const searchQuery = document.getElementById('search-input').value;
-            console.log("Search Query:", searchQuery);
-            const sheetId = '1UfQ7K08zEB1Hs-cYddYt-BEc_R97rlQlsmG4a1xfQOk';
-            const apiKey = 'AIzaSyAoyn0yXsOCFci5gxEe16ynXKWPyKSQHz0';
+            const sheetId = '1UfQ7K08zEB1Hs-cYddYt-BEc_R97rlQlsmG4a1xfQOk'; // Your Google Sheet ID
+            const apiKey = 'AIzaSyAoyn0yXsOCFci5gxEe16ynXKWPyKSQHz0'; // Your API Key
             const range = 'A:I';
 
-            console.log("Fetching data from Google Sheets API...");
-
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/<span class="math-inline">\{sheetId\}/values/</span>{range}?key=${apiKey}`)
-                .then(response => {
-                    console.log("Google Sheets API response:", response);
-                    return response.json();
-                })
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
+                .then(response => response.json())
                 .then(data => {
-                    console.log("Google Sheets API data:", data);
                     if (data.values) {
-                        const headers = ["Opp ID", "CPM", "Partner Key", "Client Name", "KYC Status", "Created Date", "Age", "Notes"];
-                        const dataRows = data.values.slice(1);
-                        console.log("Data Rows:", dataRows);
+                        const headers = ["CPM", "Partner Key", "Client Name", "KYC Status", "Created Date", "Age", "Notes", "Action"];
+                        const dataRows = data.values.slice(1); // Skip headers
+                        const results = dataRows.filter(row => row[2] && row[2].toLowerCase().includes(searchQuery.toLowerCase()))
+                                                 .map(row => [row[1], row[2], row[4], row[6], row[7], row[8], ""]);
 
-                        const results = dataRows.filter(row => {
-                            console.log("Checking row:", row);
-                            if (row[3]) {
-                                const match = row[3].toLowerCase().includes(searchQuery.toLowerCase());
-                                console.log("Match:", match);
-                                return match;
-                            }
-                        }).map(row => [row[0], row[1], row[3], row[4], row[6], row[7], row[8], ""]);
-
-                        console.log("Filtered Results:", results);
                         displayResults(results, headers);
                     } else {
-                        document.getElementById('results').querySelector('tbody').innerHTML = `<tr><td colspan="${headers.length}">No data found.</td></tr>`;
+                        document.getElementById('results').querySelector('tbody').innerHTML = `<tr><td colspan="8">No data found.</td></tr>`;
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    document.getElementById('results').querySelector('tbody').innerHTML = '<tr><td colspan="4">Error fetching data.</td></tr>';
+                    document.getElementById('results').querySelector('tbody').innerHTML = '<tr><td colspan="8">Error fetching data.</td></tr>';
                 });
         }
 
         function displayResults(results, headers) {
-            console.log("displayResults function called");
-            console.log("Results being displayed: ", results);
             const resultsTableHead = document.getElementById('results').querySelector('thead tr');
             const resultsTableBody = document.getElementById('results').querySelector('tbody');
             resultsTableHead.innerHTML = '';
@@ -158,53 +139,63 @@
             headers.forEach((header, index) => {
                 const newHeader = document.createElement('th');
                 newHeader.textContent = header;
-                if (index === 0) {
-                    newHeader.classList.add('hidden-column');
-                }
                 resultsTableHead.appendChild(newHeader);
             });
 
             if (results.length === 0) {
-                resultsTableBody.innerHTML = `<tr><td colspan="${headers.length}">No matching results found.</td></tr>`;
+                resultsTableBody.innerHTML = `<tr><td colspan="8">No matching results found.</td></tr>`;
                 return;
             }
 
-            results.forEach(row => {
+            results.forEach((row, i) => {
                 const newRow = resultsTableBody.insertRow();
                 row.forEach((cell, index) => {
                     const newCell = newRow.insertCell();
                     newCell.textContent = cell;
-                    if (index === 0) {
-                        newCell.classList.add('hidden-column');
-                    }
-                    if (index === headers.length - 1) {
+                    if (index === row.length - 1) { // Last column for notes input
                         const input = document.createElement("input");
                         input.type = "text";
                         input.className = "user-input";
-                        input.dataset.oppId = row[0];
+                        input.dataset.rowIndex = i; // Store row index for reference
                         newCell.appendChild(input);
 
                         const submitButton = document.createElement("button");
                         submitButton.textContent = "Submit";
                         submitButton.className = "submit-button";
-                        submitButton.dataset.oppId = row[0];
+                        submitButton.onclick = () => sendDataToSheet(row[0], input.value); // Pass Opp ID and input
                         newCell.appendChild(submitButton);
                     }
                 });
             });
         }
 
-        document.getElementById('results').addEventListener('click', function (event) {
-            if (event.target.classList.contains('submit-button')) {
-                alert("Submit button clicked");
-                const submitButton = event.target;
-                const oppId = submitButton.dataset.oppId;
-                const inputElement = submitButton.previousElementSibling;
-                const userInput = inputElement.value;
-                sendDataToSheet(oppId, userInput);
-            }
-        });
-
         function sendDataToSheet(oppId, userInput) {
-            console.log("Sending Opp ID:", oppId, "and User Input:", userInput);
-            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4"
+            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4..."; // Your Google Apps Script URL
+            const data = { oppId, userInput };
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`Error: ${errorData.message || response.statusText}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(result => {
+                alert("Data submitted successfully!");
+            })
+            .catch(error => {
+                console.error('Error submitting data:', error);
+                alert(`Error submitting data: ${error.message}`);
+            });
+        }
+    </script>
+</body>
+</html>
