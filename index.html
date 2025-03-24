@@ -3,87 +3,7 @@
 <head>
     <title>Google Sheet Search</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        #title {
-            font-size: 32px;
-            font-weight: 600;
-            margin-top: 50px;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            text-align: center;
-        }
-        #search-container {
-            margin-bottom: 30px;
-            width: 80%;
-            max-width: 600px;
-            text-align: center;
-        }
-        #search-input {
-            font-size: 18px;
-            padding: 12px 16px;
-            width: 70%;
-            margin-right: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        #search-button {
-            font-size: 18px;
-            padding: 12px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #results {
-            width: 90%;
-            max-width: 1200px;
-            border-collapse: collapse;
-            margin-bottom: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        #results th, #results td {
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            text-align: left;
-        }
-        #results th {
-            background-color: #3498db;
-            color: white;
-            font-weight: 600;
-        }
-        #results tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        #results tbody tr:hover {
-            background-color: #ecf0f1;
-        }
-        .user-input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .hidden-column {
-            display: none;
-        }
-        .submit-button {
-            padding: 5px 10px;
-            margin-left: 5px;
-            cursor: pointer;
-        }
+        /* ... (Your CSS) ... */
     </style>
 </head>
 <body>
@@ -107,13 +27,14 @@
         function searchSheet() {
             console.log("searchSheet function called");
             const searchQuery = document.getElementById('search-input').value;
+            console.log("Search Query:", searchQuery);
             const sheetId = '1UfQ7K08zEB1Hs-cYddYt-BEc_R97rlQlsmG4a1xfQOk';
             const apiKey = 'AIzaSyAoyn0yXsOCFci5gxEe16ynXKWPyKSQHz0';
             const range = 'A:I';
 
             console.log("Fetching data from Google Sheets API...");
 
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/<span class="math-inline">\{sheetId\}/values/</span>{range}?key=${apiKey}`)
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
                 .then(response => {
                     console.log("Google Sheets API response:", response);
                     return response.json();
@@ -123,13 +44,18 @@
                     if (data.values) {
                         const headers = ["Opp ID", "CPM", "Partner Key", "Client Name", "KYC Status", "Created Date", "Age", "Notes"];
                         const dataRows = data.values.slice(1);
+                        console.log("Data Rows:", dataRows);
 
                         const results = dataRows.filter(row => {
+                            console.log("Checking row:", row);
                             if (row[3]) {
-                                return row[3].toLowerCase().includes(searchQuery.toLowerCase());
+                                const match = row[3].toLowerCase().includes(searchQuery.toLowerCase());
+                                console.log("Match:", match);
+                                return match;
                             }
                         }).map(row => [row[0], row[1], row[3], row[4], row[6], row[7], row[8], ""]);
 
+                        console.log("Filtered Results:", results);
                         displayResults(results, headers);
                     } else {
                         document.getElementById('results').querySelector('tbody').innerHTML = `<tr><td colspan="${headers.length}">No data found.</td></tr>`;
@@ -143,6 +69,7 @@
 
         function displayResults(results, headers) {
             console.log("displayResults function called");
+            console.log("Results being displayed: ", results);
             const resultsTableHead = document.getElementById('results').querySelector('thead tr');
             const resultsTableBody = document.getElementById('results').querySelector('tbody');
             resultsTableHead.innerHTML = '';
@@ -200,4 +127,30 @@
 
         function sendDataToSheet(oppId, userInput) {
             console.log("Sending Opp ID:", oppId, "and User Input:", userInput);
-            const scriptURL = "https://script.google.com/macros/s/AK
+            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4XmG3Ha8iC4GwFuOZoue65ColPVLvKWkb5llcHCQ/exec";
+
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "oppId": oppId,
+                    "userInput": userInput
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === "success") {
+                        console.log("Data updated successfully!");
+                    } else {
+                        console.error("Error updating data:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending data:', error);
+                });
+        }
+    </script>
+</body>
+</html>
