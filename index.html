@@ -109,15 +109,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.values) {
-                        const originalHeaders = data.values[0];
-                        const headers = ["Account ID", "Partner Name", "KYC Status", "Created Date", "Age", "Product", "Notes"]; // Updated headers
+                        const headers = ["Opp ID", "CPM", "Partner Key", "Client Name", "KYC Status", "Created Date", "Age", "Notes"];
                         const dataRows = data.values.slice(1);
 
                         const results = dataRows.filter(row => {
-                            if (row[1]) {
-                                return row[1].toLowerCase().includes(searchQuery.toLowerCase());
+                            if (row[3]) {
+                                return row[3].toLowerCase().includes(searchQuery.toLowerCase());
                             }
-                        }).map(row => [row[0], row[1], row[3], row[4], row[6], row[7], ""]); // Updated mapping
+                        }).map(row => [row[0], row[1], row[3], row[4], row[6], row[7], row[8], ""]);
 
                         displayResults(results, headers);
                     } else {
@@ -162,7 +161,7 @@
                         const input = document.createElement("input");
                         input.type = "text";
                         input.className = "user-input";
-                        input.dataset.accountName = row[1];
+                        input.dataset.oppId = row[0]; // Use Opp ID as the identifier
                         newCell.appendChild(input);
                     }
                 });
@@ -172,13 +171,13 @@
         document.getElementById('results').addEventListener('change', function (event) {
             if (event.target.classList.contains('user-input')) {
                 const inputElement = event.target;
-                const accountName = inputElement.dataset.accountName;
+                const oppId = inputElement.dataset.oppId;
                 const userInput = inputElement.value;
-                sendDataToSheet(accountName, userInput);
+                sendDataToSheet(oppId, userInput);
             }
         });
 
-        function sendDataToSheet(accountName, userInput) {
+        function sendDataToSheet(oppId, userInput) {
             const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4XmG3Ha8iC4GwFuOZoue65ColPVLvKWkb5llcHCQ/exec";
 
             fetch(scriptURL, {
@@ -187,7 +186,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    "accountName": accountName,
+                    "oppId": oppId,
                     "userInput": userInput
                 })
             })
