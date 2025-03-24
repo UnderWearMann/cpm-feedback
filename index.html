@@ -207,11 +207,4 @@
 
         function sendDataToSheet(oppId, userInput) {
             console.log("Sending Opp ID:", oppId, "and User Input:", userInput);
-            const scriptURL = "https://script.google.com/macros/s/AKfycbz9xrkScAZh4y-5ujeY7q8LPEpYVn4XmG3Ha8iC4GwFuOZoue65ColPVLvKWkb5llcHCQ/exec";
-
-            fetch(scriptURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify
+            const script
