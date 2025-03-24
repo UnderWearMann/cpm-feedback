@@ -116,7 +116,7 @@
                     if (data.values) {
                         const headers = ["CPM", "Partner Key", "Client Name", "KYC Status", "Created Date", "Age", "Notes", "Action"];
                         const dataRows = data.values.slice(1); // Skip headers
-                        const results = dataRows.filter(row => row[2] && row[2].toLowerCase().includes(searchQuery.toLowerCase()))
+                        const results = dataRows.filter(row => row[3] && row[3].toLowerCase().includes(searchQuery.toLowerCase()))
                                                  .map(row => [row[1], row[2], row[4], row[6], row[7], row[8], ""]);
 
                         displayResults(results, headers);
